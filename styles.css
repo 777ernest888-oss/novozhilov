@@ -1,6 +1,6 @@
 :root {
-  --primary: #00897B;
-  --accent: #FBC02D;
+  --primary: #66BB6A;
+  --accent: #66BB6A;
   --bg: #f5f7fa;
   --text: #333;
   --text-secondary: #666;
@@ -79,10 +79,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   font-size: 16px;
 }
 
-/* BUTTONS */
+/* BUTTONS - БЕЛЫЙ ТЕКСТ */
 .btn-primary {
   background: var(--accent);
-  color: var(--primary);
+  color: var(--white);
   border: none;
   padding: 14px 24px;
   border-radius: var(--radius);
@@ -291,3 +291,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   color: var(--text-secondary);
 }
 .tg-btn { background: var(--primary); color: var(--white); border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; font-size: 14px; }
+
+/* === ЗАЩИТА ШАПКИ ОТ ПЕРЕПОЛНЕНИЯ (iOS/Android) === */.header-brand .brand-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100vw - 160px); /* Место под кнопку "Назад" + логотип + отступы */
+  flex-shrink: 1;
+}
