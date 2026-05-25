@@ -1,4 +1,4 @@
-// === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
+/ === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
 let tg = null;
 let config = {};
 let listings = [];
@@ -96,8 +96,35 @@ function switchView(view) {
     if (mapBtn) mapBtn.classList.add('active');
     if (listCont) listCont.classList.add('hidden');
     if (mapCont) mapCont.classList.remove('hidden');
-    showBack();    setTimeout(initMap, 100);
+    showBack();   
+    // Инициализируем карту и обновляем маркеры С УЧЁТОМ ФИЛЬТРОВ
+    initMap();
+    const filtered = getFilteredItems();
+    updateMarkers(filtered);
+    setTimeout(function() { map.invalidateSize(); }, 150);
   }
+}
+
+// === ПОЛУЧЕНИЕ ОТФИЛЬТРОВАННЫХ ДАННЫХ (Новая функция) ===
+function getFilteredItems() {
+  const activeBtn = document.querySelector('.price-btn.active');
+  const maxPrice = activeBtn ? parseFloat(activeBtn.dataset.price) : Infinity;
+ 
+  const getChecked = (id) => Array.from(document.querySelectorAll('#' + id + ' input:checked')).map(cb => cb.value);
+  const districts = getChecked('districtCheckboxes');
+  const metros = getChecked('metroCheckboxes');
+  const rooms = getChecked('roomsCheckboxes');
+ 
+  return listings.filter(item => {
+    if (typeof item.price_from !== 'number' || item.price_from > maxPrice) return false;
+    if (districts.length && !districts.includes(item.district)) return false;
+    if (metros.length && !metros.includes(item.metro)) return false;
+    if (rooms.length && item.rooms) {
+      const itemRooms = String(item.rooms).split(',').map(r => r.trim());
+      if (!rooms.some(r => itemRooms.includes(r))) return false;
+    }
+    return true;
+  });
 }
 
 // === ИНИЦИАЛИЗАЦИЯ ===
@@ -118,13 +145,13 @@ async function init() {
    
     applyTheme();
     applyBranding();
-    initFilters();
-    initPhoneMask();
+    initFilters();    initPhoneMask();
    
     if (loader) loader.classList.add('hidden');
     if (welcome) welcome.classList.remove('hidden');
     if (main) main.classList.add('hidden');
    
+    // Рендерим начальный список
     renderListings(listings);
    
     // Привязка кнопки "Начать подбор"
@@ -146,6 +173,7 @@ function applyTheme() {
   if (config.brand.primaryColor) document.documentElement.style.setProperty('--primary', config.brand.primaryColor);
   if (config.brand.accentColor) document.documentElement.style.setProperty('--accent', config.brand.accentColor);
 }
+
 function applyBranding() {
   if (!config.brand) return;
   const img = document.getElementById('welcomeImage');
@@ -166,15 +194,19 @@ function initFilters() {
       btn.dataset.price = price;
       btn.textContent = 'До ' + price + ' млн';
       btn.onclick = function() {
-        document.querySelectorAll('.price-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+        // Если кнопка уже активна — снимаем фильтр (показываем все)        if (this.classList.contains('active')) {
+           this.classList.remove('active');
+        } else {
+           document.querySelectorAll('.price-btn').forEach(b => b.classList.remove('active'));
+           this.classList.add('active');
+        }
         filterListings();
       };
       priceCont.appendChild(btn);
     });
   }
  
-  // Районы, Метро, Комнаты заполняются после загрузки данных
+  // Районы, Метро, Комнаты
   if (listings.length) {
     fillCheckboxes('districtCheckboxes', 'district');
     fillCheckboxes('metroCheckboxes', 'metro');
@@ -194,7 +226,8 @@ function fillCheckboxes(id, field, isMulti) {
   cont.innerHTML = '';
   values.forEach(v => {
     const lbl = document.createElement('label');
-    lbl.className = 'checkbox-label';    lbl.innerHTML = '<input type="checkbox" value="' + escapeHtml(v) + '" data-filter="' + field + '"><span>' + escapeHtml(v) + '</span>';
+    lbl.className = 'checkbox-label';
+    lbl.innerHTML = '<input type="checkbox" value="' + escapeHtml(v) + '" data-filter="' + field + '"><span>' + escapeHtml(v) + '</span>';
     cont.appendChild(lbl);
   });
  
@@ -204,28 +237,13 @@ function fillCheckboxes(id, field, isMulti) {
 }
 
 function filterListings() {
-  const activeBtn = document.querySelector('.price-btn.active');
-  const maxPrice = activeBtn ? parseFloat(activeBtn.dataset.price) : Infinity;
- 
-  const getChecked = (id) => Array.from(document.querySelectorAll('#' + id + ' input:checked')).map(cb => cb.value);
-  const districts = getChecked('districtCheckboxes');
-  const metros = getChecked('metroCheckboxes');
-  const rooms = getChecked('roomsCheckboxes');
- 
-  const filtered = listings.filter(item => {
-    if (typeof item.price_from !== 'number' || item.price_from > maxPrice) return false;
-    if (districts.length && !districts.includes(item.district)) return false;
-    if (metros.length && !metros.includes(item.metro)) return false;
-    if (rooms.length && item.rooms) {
-      const itemRooms = String(item.rooms).split(',').map(r => r.trim());
-      if (!rooms.some(r => itemRooms.includes(r))) return false;
-    }
-    return true;
-  });
- 
+  const filtered = getFilteredItems();
   renderListings(filtered);
+ 
+  // Если карта открыта, обновляем маркеры
   const mapCont = document.getElementById('mapContainer');
-  if (mapCont && !mapCont.classList.contains('hidden')) updateMarkers(filtered);
+  if (mapCont && !mapCont.classList.contains('hidden')) {
+    updateMarkers(filtered);  }
 }
 
 // === ЗАГРУЗКА ДАННЫХ ===
@@ -243,7 +261,8 @@ async function loadFromGoogleSheets(url) {
 function parseCSV(csv) {
   const lines = csv.trim().split('\n');
   if (lines.length < 2) return [];
-  const headers = parseLine(lines[0]).map(h => h.trim());  return lines.slice(1).filter(l => l.trim()).map(line => {
+  const headers = parseLine(lines[0]).map(h => h.trim());
+  return lines.slice(1).filter(l => l.trim()).map(line => {
     const vals = parseLine(line);
     const obj = {};
     headers.forEach((h, i) => {
@@ -273,8 +292,7 @@ function parseLine(line) {
 
 // === ОТРИСОВКА ===
 function renderListings(data) {
-  const cont = document.getElementById('listingsContainer');
-  if (!cont) return;
+  const cont = document.getElementById('listingsContainer');  if (!cont) return;
   cont.innerHTML = '';
  
   if (!data || data.length === 0) {
@@ -290,9 +308,10 @@ function renderListings(data) {
     const ppsqm = typeof item.price_per_sqm === 'number' ? Math.round(item.price_per_sqm).toLocaleString('ru-RU') : '';
     const area = (typeof item.area_min === 'number' && typeof item.area_max === 'number') ? item.area_min + '–' + item.area_max + ' м²' : '';
     const statusKey = (item.status || 'other').toString().replace(/\s+/g, '-');
-    const statusTxt = item.status === 'Сдан' ? '✅ Сдан' : item.status === 'Строится' ? '🏗 Строится' : '🟡 Частично сдан';
+    const statusTxt = item.status === 'Сдан' ? '✅ Сдан' : item.status === 'Строится' ? ' Строится' : '🟡 Частично сдан';
    
-    const card = document.createElement('div');    card.className = 'listing-card';
+    const card = document.createElement('div');
+    card.className = 'listing-card';
     card.style.animationDelay = (i * 0.05) + 's';
     card.onclick = function(e) {
       if (!e.target.closest('.consult-btn-inline')) openDetails(item.id);
@@ -304,14 +323,14 @@ function renderListings(data) {
     html += '<div class="listing-meta">';
     if (item.district) html += '<span>' + item.district + '</span>';
     if (item.metro) html += '<span>🚇 ' + item.metro + '</span>';
-    if (item.rooms) html += '<span>🚪 ' + item.rooms + '</span>';
-    if (area) html += '<span>📐 ' + area + '</span>';
+    if (item.rooms) html += '<span> ' + item.rooms + '</span>';
+    if (area) html += '<span> ' + area + '</span>';
     html += '</div>';
     html += '<div class="listing-price">от ' + price + ' млн ₽';
     if (ppsqm) html += ' <span class="price-per-sqm">~' + ppsqm + ' ₽/м²</span>';
     html += '</div>';
     html += '<div class="listing-status status-' + statusKey + '">' + statusTxt + '</div>';
-    html += '<button class="tg-btn consult-btn-inline" onclick="openConsultForm(\'' + item.id + '\', event)">📞 Получить консультацию</button>';
+    html += '<button class="tg-btn consult-btn-inline" onclick="openConsultForm(\'' + item.id + '\', event)"> Получить консультацию</button>';
     html += '</div>';
    
     card.innerHTML = html;
@@ -322,14 +341,12 @@ function renderListings(data) {
 // === КАРТА ===
 function initMap() {
   if (typeof L === 'undefined') return;
-  const cont = document.getElementById('mapContainer');
-  if (!cont) return;
+  const cont = document.getElementById('mapContainer');  if (!cont) return;
   if (!map) {
     map = L.map('mapContainer').setView([59.9343, 30.3351], 11);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
   }
-  updateMarkers(listings);
-  setTimeout(function() { map.invalidateSize(); }, 150);
+  // Маркеры обновляются отдельно в switchView или filterListings
 }
 
 function updateMarkers(items) {
@@ -341,7 +358,8 @@ function updateMarkers(items) {
     let p = '?';
     if (typeof item.price_from === 'number') {
       p = item.price_from < 1000 ? item.price_from.toFixed(1) : (item.price_from / 1000000).toFixed(1);
-    }    const m = L.marker([item.lat, item.lng]).addTo(map).bindPopup('<b>' + item.name + '</b><br>от ' + p + ' млн ₽');
+    }
+    const m = L.marker([item.lat, item.lng]).addTo(map).bindPopup('<b>' + item.name + '</b><br>от ' + p + ' млн ₽');
     markers.push(m);
   });
   if (markers.length) map.fitBounds(new L.featureGroup(markers).getBounds().pad(0.1));
@@ -372,8 +390,7 @@ function openDetails(id) {
   document.getElementById('modalDescription').textContent = item.description || 'Описание отсутствует';
  
   const featuresEl = document.getElementById('modalFeatures');
-  if (item.features) {
-    featuresEl.innerHTML = '<ul>' + item.features.split(',').map(function(f) { return '<li>' + f.trim() + '</li>'; }).join('') + '</ul>';
+  if (item.features) {    featuresEl.innerHTML = '<ul>' + item.features.split(',').map(function(f) { return '<li>' + f.trim() + '</li>'; }).join('') + '</ul>';
   } else {
     featuresEl.innerHTML = '<p style="color:var(--text-secondary)">Информация уточняется</p>';
   }
@@ -390,7 +407,8 @@ function openDetails(id) {
     const g = document.createElement('div');
     g.className = 'floor-plans-gallery';
     item.floor_plans_images.split(',').map(function(u) { return u.trim(); }).filter(Boolean).forEach(function(url) {
-      const img = document.createElement('img');      img.src = url;
+      const img = document.createElement('img');
+      img.src = url;
       img.className = 'floor-plan-image';
       img.onclick = function() { window.open(url, '_blank'); };
       g.appendChild(img);
@@ -421,8 +439,7 @@ function openDetails(id) {
  
   const btn = document.getElementById('modalConsultBtn');
   if (btn) {
-    btn.textContent = '📞 Получить консультацию';
-    btn.onclick = function() { openConsultForm(id); };
+    btn.textContent = '📞 Получить консультацию';    btn.onclick = function() { openConsultForm(id); };
   }
  
   document.getElementById('detailsModal').classList.remove('hidden');
@@ -439,7 +456,8 @@ function closeModal() {
 }
 
 // === ФОРМА ===
-function openConsultForm(id, e) {  if (e) e.stopPropagation();
+function openConsultForm(id, e) {
+  if (e) e.stopPropagation();
   currentModalId = id;
   const item = listings.find(l => l.id === id);
   if (!item) return;
@@ -470,8 +488,7 @@ function initPhoneMask() {
     e.target.value = !x[2] ? '+7 (' : '+7 (' + x[2] + (x[3] ? ') ' + x[3] : '') + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
   });
   inp.addEventListener('focus', function(e) {
-    if (e.target.value === '' || e.target.value === '+7 ') {
-      e.target.value = '+7 (';
+    if (e.target.value === '' || e.target.value === '+7 ') {      e.target.value = '+7 (';
     }
   });
 }
@@ -488,7 +505,8 @@ function submitConsultForm(e) {
   if (name.length < 2) {
     if (tg && tg.showAlert) tg.showAlert('❌ Введите имя (мин. 2 символа)');
     return;
-  }  if (phone.replace(/\D/g, '').length < 10) {
+  }
+  if (phone.replace(/\D/g, '').length < 10) {
     if (tg && tg.showAlert) tg.showAlert('❌ Введите корректный номер телефона');
     return;
   }
@@ -498,9 +516,10 @@ function submitConsultForm(e) {
   btn.textContent = 'Отправка...';
   btn.disabled = true;
  
+  // ИСПРАВЛЕНИЕ CORS: убираем заголовок Content-Type
   fetch(GOOGLE_SCRIPT_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    // headers: { 'Content-Type': 'application/json' }, // <-- УБРАЛИ!
     body: JSON.stringify({
       secret: SECRET_KEY,
       projectId: PROJECT_ID,
@@ -518,13 +537,12 @@ function submitConsultForm(e) {
       closeConsultModal();
       if (tg && tg.showAlert) tg.showAlert('✅ Заявка отправлена!');
       e.target.reset();
-    } else {
-      throw new Error(d.error || 'Ошибка отправки');
+    } else {      throw new Error(d.error || 'Ошибка отправки');
     }
   })
   .catch(function(err) {
     console.error('Send error:', err);
-    if (tg && tg.showAlert) tg.showAlert('⚠️ ' + err.message);
+    if (tg && tg.showAlert) tg.showAlert('️ ' + err.message);
   })
   .finally(function() {
     btn.textContent = orig;
@@ -538,6 +556,7 @@ function escapeHtml(text) {
   d.textContent = text;
   return d.innerHTML;
 }
+
 // === ЗАПУСК ===
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
