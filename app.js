@@ -103,7 +103,7 @@ async function init() {
     applyTheme();
     applyBranding();
     renderWelcome();
-    renderListings(listings.filter(l => l.active));
+    renderListings(listings);
     initPhoneMask();
     hideBack();
    
