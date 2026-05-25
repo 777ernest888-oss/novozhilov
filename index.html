@@ -7,12 +7,13 @@
   <meta name="theme-color" content="#1a365d">
   <title>Новожилов</title>
 
+  <!-- Заглушка Telegram WebApp -->
   <script>
     window.Telegram = window.Telegram || {};
     window.Telegram.WebApp = window.Telegram.WebApp || {
       ready: function() {},
       expand: function() {},
-      MainButton: { setText: function() {}, show: function() {}, onClick: function() {}, hide: function() {} },
+      MainButton: { setText: function() {}, show: function() {}, hide: function() {} },
       showAlert: function(msg) { alert(msg); },
       openLink: function(url) { window.open(url, '_blank'); },
       initDataUnsafe: { user: {} },
@@ -21,8 +22,9 @@
   </script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
  
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous"/>
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
 
@@ -34,29 +36,22 @@
 
   <!-- 🏠 ПРИВЕТСТВИЕ -->
   <div id="welcomeScreen" class="screen welcome hidden">
-   
-    <!-- 1. ВЕРХ: Логотип и Название -->
     <div class="welcome-header">
       <img src="logo.svg" class="welcome-logo" alt="Лого">
       <h1 class="welcome-company">Агентство недвижимости НОВОЖИЛОВ</h1>
     </div>
-
-    <!-- 2. СЕРЕДИНА: Фото -->
     <div class="welcome-media">
       <img id="welcomeImage" class="welcome-img" src="welcome-bg.jpg" alt="Фото">
     </div>
-
-    <!-- 3. НИЗ: Текст и Кнопка -->
-    <div class="welcome-bottom">      <h2 class="welcome-subtitle">Каталог новостроек</h2>
+    <div class="welcome-bottom">
+      <h2 class="welcome-subtitle">Каталог новостроек</h2>
       <p class="welcome-motto">Квартиры вашей мечты</p>
-      <button class="tg-btn" onclick="startApp()" type="button">Начать подбор</button>
-    </div>
-
-  </div>
+      <button class="tg-btn" id="startBtn" type="button">Начать подбор</button>
+    </div>  </div>
 
   <!-- 📋 ОСНОВНОЙ КОНТЕНТ -->
   <div id="mainContent" class="screen main hidden">
-    <button id="customBackBtn" class="header-back-btn hidden" onclick="appBack()" type="button">
+    <button id="customBackBtn" class="header-back-btn hidden" type="button">
       <span class="back-arrow">←</span> Назад
     </button>
 
@@ -67,13 +62,7 @@
     <div id="filtersBlock" class="filters-block hidden">
       <div class="filter-group">
         <label>💰 Цена до (млн ₽)</label>
-        <div class="price-buttons">
-          <button class="price-btn" data-price="5">До 5 млн</button>
-          <button class="price-btn" data-price="10">До 10 млн</button>
-          <button class="price-btn" data-price="20">До 20 млн</button>
-          <button class="price-btn" data-price="50">До 50 млн</button>
-          <button class="price-btn" data-price="100">До 100 млн</button>
-        </div>
+        <div class="price-buttons" id="priceButtons"></div>
       </div>
       <div class="filter-group">
         <label>📍 Районы</label>
@@ -84,29 +73,30 @@
         <div id="metroCheckboxes" class="checkbox-group"></div>
       </div>
       <div class="filter-group">
-        <label>🚪 Комнаты</label>
+        <label> Комнаты</label>
         <div id="roomsCheckboxes" class="checkbox-group"></div>
       </div>
     </div>
 
+    <!-- ПЕРЕКЛЮЧАТЕЛЬ ВИДА -->
     <div class="view-toggle">
-      <button id="listViewBtn" class="view-btn active" onclick="switchView('list')" type="button">📋 Список</button>
+      <button id="listViewBtn" class="view-btn active" onclick="switchView('list')" type="button"> Список</button>
       <button id="mapViewBtn" class="view-btn" onclick="switchView('map')" type="button">🗺️ Карта</button>
     </div>
 
+    <!-- КОНТЕЙНЕРЫ -->
     <div id="listingsContainer" class="listings"></div>
     <div id="mapContainer" class="map-container hidden"></div>
   </div>
-  <!-- 🏢 МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ -->
+
+  <!-- 🏢 МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ (КРЕСТИК УБРАН) -->
   <div id="detailsModal" class="modal hidden">
     <div class="modal-content">
-      <button class="close-btn" onclick="closeModal()" type="button">✕</button>
       <h2 id="modalTitle"></h2>
       <div id="modalGallery" class="modal-gallery"></div>
       <div id="modalPrice" class="modal-price"></div>
       <div id="modalMeta" class="modal-meta"></div>
-    
-      <div class="modal-section">
+           <div class="modal-section">
         <h3>📖 Описание</h3>
         <div id="modalDescription"></div>
       </div>
@@ -125,10 +115,9 @@
     </div>
   </div>
 
-  <!-- 📞 МОДАЛЬНОЕ ОКНО ЗАЯВКИ -->
+  <!-- 📞 МОДАЛЬНОЕ ОКНО ЗАЯВКИ (КРЕСТИК УБРАН) -->
   <div id="consultModal" class="modal hidden">
     <div class="modal-content">
-      <button class="close-btn" onclick="closeConsultModal()" type="button">✕</button>
       <h2>Заказать консультацию</h2>
       <p class="form-hint">Оставьте контакты — мы перезвоним</p>
       <div id="consultObjectName" class="form-object">🏢 Объект</div>
@@ -136,12 +125,14 @@
       <form id="consultForm" onsubmit="submitConsultForm(event)" class="form-modal">
         <input type="text" id="consultName" placeholder="Ваше имя" required>
         <input type="tel" id="consultPhone" placeholder="+7 (___) ___-__-__" required>
+        <input type="text" id="consultTelegram" placeholder="@username (Telegram)" autocomplete="off">
         <button type="submit" class="tg-btn">Отправить заявку</button>
       </form>
     </div>
   </div>
 
+  <!-- Leaflet JS + Наш скрипт -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
