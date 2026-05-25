@@ -533,25 +533,28 @@ function submitConsultForm(e) {
   btn.textContent = 'Отправка...';
   btn.disabled = true;
  
-  // ИСПРАВЛЕНИЕ ЦЕНЫ: ОДИН знак рубля
+  // === ИСПРАВЛЕНИЕ ДЛЯ ОБЩЕГО СКРИПТА ===
+  // 1. Формируем цену как готовый текст, чтобы скрипт не добавлял "руб" второй раз
   let priceValue = '';
   if (typeof item.price_from === 'number') {
-    if (item.price_from < 1000) {
-      priceValue = item.price_from + ' млн ₽';    } else {
+    if (item.price_from < 1000) {      priceValue = item.price_from + ' млн ₽';
+    } else {
       priceValue = item.price_from + ' ₽';
     }
   }
  
+  // 2. Отправляем priceValue как строку, НЕ отправляем city
   fetch(GOOGLE_SCRIPT_URL, {
     method: 'POST',
     body: JSON.stringify({
       secret: SECRET_KEY,
       projectId: PROJECT_ID,
       title: item.name,
-      price: priceValue,
+      price: priceValue, // Отправляем готовый текст "14.6 млн ₽"
       leadName: name,
       leadPhone: phone,
       leadTelegram: telegram || 'Не указан'
+      // city: ... <-- НЕ ОТПРАВЛЯЕМ ВООБЩЕ
     })
   })
   .then(function(r) { return r.json(); })
@@ -583,6 +586,5 @@ function escapeHtml(text) {
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
+} else {  init();
 }
