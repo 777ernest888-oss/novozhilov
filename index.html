@@ -2,17 +2,35 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Новожилов - Каталог</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Новожилов Каталог</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
+  <!-- ЭКРАН ЗАГРУЗКИ -->
   <div id="loadingScreen" class="loading-screen">
     <div class="spinner"></div>
-    <div>⏳ Загрузка объектов...</div>
+    <div>⏳ Загружаем объекты...</div>
   </div>
 
+  <!-- СТАРТОВЫЙ ЭКРАН -->
+  <div id="welcomeScreen" class="screen welcome hidden">
+    <div class="welcome-brand">
+      <img src="favicon.png" alt="Logo" class="logo">
+      <div class="brand-name">НОВОЖИЛОВ КАТАЛОГ</div>
+    </div>
+    <div class="welcome-media">
+      <img id="welcomeImage" src="hero.png" alt="Welcome">
+    </div>
+    <div class="welcome-text">
+      <h1>НАДЁЖНЫЙ ДОХОДНЫЙ</h1>
+      <p>Готовый Арендный Бизнес</p>
+    </div>
+    <button class="btn-start" onclick="startApp()">ЗДЕСЬ</button>
+  </div>
+
+  <!-- ОСНОВНОЙ ЭКРАН -->
   <div id="mainScreen" class="screen main hidden">
     <header class="main-header">
       <h2>🏢 Новожилов Каталог</h2>
@@ -20,6 +38,7 @@
     <div id="objectsList" class="list"></div>
   </div>
 
+  <!-- МОДАЛЬНОЕ ОКНО -->
   <div id="modalOverlay" class="modal-overlay hidden" onclick="closeModal(event)">
     <div class="modal" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">×</button>
@@ -30,7 +49,7 @@
         <div class="modal-price" id="modalPrice"></div>
         <div class="modal-yield" id="modalYield"></div>
         <div class="modal-section">
-          <h3> Описание</h3>
+          <h3>📖 Описание</h3>
           <p id="modalDesc"></p>
         </div>
       </div>
@@ -54,7 +73,7 @@
       </div>
 
       <div id="modalActions" class="modal-actions">
-        <button class="tg-btn" onclick="openLeadForm()"> Забронировать</button>
+        <button class="tg-btn" onclick="openLeadForm()">📞 Забронировать</button>
       </div>
     </div>
   </div>
