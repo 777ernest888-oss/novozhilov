@@ -38,24 +38,16 @@ function showBack() {
   const btn = document.getElementById('customBackBtn');
   if (btn) btn.classList.remove('hidden');
 }
-
 function hideBack() {
   const btn = document.getElementById('customBackBtn');
   if (btn) btn.classList.add('hidden');
 }
-
 function appBack() {
-  if (!document.getElementById('consultModal').classList.contains('hidden')) {
-    return closeConsultModal();
-  }  if (!document.getElementById('detailsModal').classList.contains('hidden')) {
-    return closeModal();
-  }
-  if (!document.getElementById('mapContainer').classList.contains('hidden')) {
-    return switchView('list');
-  }
+  if (!document.getElementById('consultModal').classList.contains('hidden')) return closeConsultModal();
+  if (!document.getElementById('detailsModal').classList.contains('hidden')) return closeModal();
+  if (!document.getElementById('mapContainer').classList.contains('hidden')) return switchView('list');
   if (tg.close) tg.close();
 }
-
 // === ЗАПУСК ===
 function startApp() {
   document.getElementById('welcomeScreen')?.classList.add('hidden');
@@ -92,23 +84,30 @@ async function init() {
   const welcome = document.getElementById('welcomeScreen');
   const main = document.getElementById('mainContent');
  
+  loader?.classList.remove('hidden');
+ 
   try {
+    // 1. Загружаем конфиг
     const configRes = await fetch('config.json?v=' + Date.now());
     if (!configRes.ok) throw new Error('Не удалось загрузить config.json');
     config = await configRes.json();
-        if (config.data?.sheetUrl) {
+   
+    // 2. Загружаем таблицу
+    if (config.data?.sheetUrl) {
       listings = await loadFromGoogleSheets(config.data.sheetUrl);
       console.log('Загружено объектов:', listings.length);
-    }
-   
+    }   
+    // 3. Применяем настройки
     applyTheme();
     applyBranding();
     initPhoneMask();
    
+    // 4. Принудительно переключаем экраны
     if (loader) loader.classList.add('hidden');
     if (welcome) welcome.classList.remove('hidden');
     if (main) main.classList.add('hidden');
    
+    // 5. Рисуем список (появится после кнопки "Начать подбор")
     renderListings(listings);
    
   } catch (error) {
@@ -145,8 +144,8 @@ function applyBranding() {
 // === ЗАГРУЗКА ДАННЫХ ИЗ GOOGLE SHEETS ===
 async function loadFromGoogleSheets(url) {
   let csvUrl = url.trim();
-  csvUrl = csvUrl.replace('/pubhtml', '/pub').replace('/edit', '/pub');  if (!csvUrl.includes('output=csv')) {
-    csvUrl += (csvUrl.includes('?') ? '&' : '?') + 'output=csv';
+  csvUrl = csvUrl.replace('/pubhtml', '/pub').replace('/edit', '/pub');
+  if (!csvUrl.includes('output=csv')) {    csvUrl += (csvUrl.includes('?') ? '&' : '?') + 'output=csv';
   }
   const response = await fetch(csvUrl + '&_t=' + Date.now());
   if (!response.ok) throw new Error(`Таблица недоступна (статус ${response.status})`);
@@ -194,8 +193,8 @@ function renderListings(data) {
     cont.innerHTML = `<div class="empty-state">${listings.length ? 'Ничего не найдено' : 'Объекты ещё не добавлены'}</div>`;
     return;
   }
-    data.forEach((item, index) => {
-    let price = '?';
+ 
+  data.forEach((item, index) => {    let price = '?';
     if (typeof item.price_from === 'number') {
       price = item.price_from < 1000 ? item.price_from.toFixed(1) : (item.price_from / 1000000).toFixed(1);
     }
@@ -243,8 +242,8 @@ function initMap() {
 
 function updateMapMarkers(items) {
   if (!map) return;
-  markers.forEach(m => map.removeLayer(m));  markers = [];
-  items.forEach(item => {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];  items.forEach(item => {
     if (!item.lat || !item.lng) return;
     let p = '?';
     if (typeof item.price_from === 'number') p = item.price_from < 1000 ? item.price_from.toFixed(1) : (item.price_from / 1000000).toFixed(1);
@@ -259,40 +258,93 @@ function openDetails(id) {
   const item = listings.find(l => l.id === id);
   if (!item) return;
   currentModalId = id;
+ 
   document.getElementById('modalTitle').textContent = item.name || '';
+ 
   let price = '?';
   if (typeof item.price_from === 'number') price = item.price_from < 1000 ? item.price_from.toFixed(1) : (item.price_from / 1000000).toFixed(1);
   const ppsqm = typeof item.price_per_sqm === 'number' ? Math.round(item.price_per_sqm).toLocaleString('ru-RU') : '';
+ 
   document.getElementById('modalPrice').innerHTML = `от <b>${price}</b> млн ₽ ${ppsqm ? `<span class="price-per-sqm">~${ppsqm} ₽/м²</span>` : ''}`;
+ 
   document.getElementById('modalMeta').innerHTML = `
     <div class="meta-row"><span>📍 ${escapeHtml(item.address) || ''}</span></div>
     <div class="meta-row"><span>🚇 ${escapeHtml(item.metro) || ''}</span></div>
     <div class="meta-row"><span>${escapeHtml(item.class) || ''} • ${escapeHtml(item.finishing) || ''}</span></div>
     <div class="meta-row"><span>${escapeHtml(item.completion_soonest || item.completion_all) || ''}</span></div>`;
+ 
   document.getElementById('modalDescription').textContent = item.description || 'Описание отсутствует';
+ 
+  // Преимущества
   const featuresEl = document.getElementById('modalFeatures');
-  featuresEl.innerHTML = item.features ? `<ul>${item.features.split(',').map(f => `<li>${escapeHtml(f.trim())}</li>`).join('')}</ul>` : '<p style="color:var(--text-secondary)">Информация уточняется</p>';
+  if (item.features) {
+    featuresEl.innerHTML = `<ul>${item.features.split(',').map(f => `<li>${escapeHtml(f.trim())}</li>`).join('')}</ul>`;
+  } else {
+    featuresEl.innerHTML = '<p style="color:var(--text-secondary)">Информация уточняется</p>';
+  }
+ 
+  // Планировки
   const plansEl = document.getElementById('modalFloorPlans');
   plansEl.innerHTML = '';
-  if (item.floor_plans_text) { const t = document.createElement('div'); t.className = 'floor-plans-text'; t.textContent = item.floor_plans_text; plansEl.appendChild(t); }
-  if (item.floor_plans_images) { const g = document.createElement('div'); g.className = 'floor-plans-gallery'; item.floor_plans_images.split(',').map(u => u.trim()).filter(Boolean).forEach(url => { const img = document.createElement('img'); img.src = url; img.className = 'floor-plan-image'; img.onclick = () => window.open(url, '_blank'); g.appendChild(img); }); plansEl.appendChild(g); }
-  if (!item.floor_plans_text && !item.floor_plans_images) plansEl.innerHTML = '<p style="color:var(--text-secondary)">Информация уточняется</p>';
+  if (item.floor_plans_text) {
+    const t = document.createElement('div');
+    t.className = 'floor-plans-text';
+    t.textContent = item.floor_plans_text;
+    plansEl.appendChild(t);
+  }
+  if (item.floor_plans_images) {    const g = document.createElement('div');
+    g.className = 'floor-plans-gallery';
+    item.floor_plans_images.split(',').map(u => u.trim()).filter(Boolean).forEach(url => {
+      const img = document.createElement('img');
+      img.src = url;
+      img.className = 'floor-plan-image';
+      img.onclick = () => window.open(url, '_blank');
+      g.appendChild(img);
+    });
+    plansEl.appendChild(g);
+  }
+  if (!item.floor_plans_text && !item.floor_plans_images) {
+    plansEl.innerHTML = '<p style="color:var(--text-secondary)">Информация уточняется</p>';
+  }
+ 
+  // Галерея фото
   const gallery = document.getElementById('modalGallery');
   gallery.innerHTML = '';
-  if (item.image_main) { const img = document.createElement('img'); img.src = item.image_main; img.className = 'modal-main-image'; gallery.appendChild(img); }
-  if (item.images_gallery) { item.images_gallery.split(',').map(u => u.trim()).filter(Boolean).forEach(url => { const img = document.createElement('img'); img.src = url; img.className = 'modal-thumb'; img.onclick = () => window.open(url, '_blank'); gallery.appendChild(img); }); }
+  if (item.image_main) {
+    const img = document.createElement('img');
+    img.src = item.image_main;
+    img.className = 'modal-main-image';
+    gallery.appendChild(img);
+  }
+  if (item.images_gallery) {
+    item.images_gallery.split(',').map(u => u.trim()).filter(Boolean).forEach(url => {
+      const img = document.createElement('img');
+      img.src = url;
+      img.className = 'modal-thumb';
+      img.onclick = () => window.open(url, '_blank');
+      gallery.appendChild(img);
+    });
+  }
+ 
+  // Кнопка консультации
   let btn = document.getElementById('modalConsultBtn');
-  if (!btn) { btn = document.createElement('button'); btn.id = 'modalConsultBtn'; btn.className = 'tg-btn modal-cta'; document.querySelector('#detailsModal .modal-content')?.appendChild(btn); }
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'modalConsultBtn';
+    btn.className = 'tg-btn modal-cta';
+    document.querySelector('#detailsModal .modal-content')?.appendChild(btn);
+  }
   btn.textContent = '📞 Получить консультацию';
   btn.onclick = () => openConsultForm(id);
+ 
   document.getElementById('detailsModal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
   showBack();
 }
-
 function closeModal() {
   document.getElementById('detailsModal').classList.add('hidden');
-  document.body.style.overflow = '';  currentModalId = null;
+  document.body.style.overflow = '';
+  currentModalId = null;
   if (document.getElementById('mapContainer').classList.contains('hidden')) hideBack();
 }
 
@@ -318,39 +370,76 @@ function closeConsultModal() {
 function initPhoneMask() {
   const inp = document.getElementById('consultPhone');
   if (!inp) return;
+ 
   inp.addEventListener('input', function(e) {
     let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
     if (!x) return;
     e.target.value = !x[2] ? '+7 (' : '+7 (' + x[2] + (x[3] ? ') ' + x[3] : '') + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
   });
-  inp.addEventListener('focus', function(e) { if (e.target.value === '' || e.target.value === '+7 ') e.target.value = '+7 ('; });
+ 
+  inp.addEventListener('focus', function(e) {
+    if (e.target.value === '' || e.target.value === '+7 ') {
+      e.target.value = '+7 (';
+    }
+  });
 }
 
 function submitConsultForm(e) {
   e.preventDefault();
+ 
   const item = listings.find(l => l.id === currentModalId);
   if (!item) return;
-  const name = document.getElementById('consultName').value.trim();
-  const phone = document.getElementById('consultPhone').value.trim();
+ 
+  const name = document.getElementById('consultName').value.trim();  const phone = document.getElementById('consultPhone').value.trim();
+ 
+  // Строгая валидация
   if (name.length < 2) { tg?.showAlert('❌ Введите имя (мин. 2 символа)'); return; }
   if (phone.replace(/\D/g, '').length < 10) { tg?.showAlert('❌ Введите корректный номер телефона'); return; }
+ 
   const btn = e.target.querySelector('button[type="submit"]');
   const orig = btn.textContent;
-  btn.textContent = 'Отправка...'; btn.disabled = true;
+  btn.textContent = 'Отправка...';
+  btn.disabled = true;
+ 
+  // Отправка на ОБЩИЙ безопасный скрипт
   fetch(GOOGLE_SCRIPT_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ secret: SECRET_KEY, projectId: PROJECT_ID, title: item.name, price: typeof item.price_from === 'number' ? item.price_from : '', city: item.district || '', leadName: name, leadPhone: phone, leadTelegram: 'Не указан' })
-  })  .then(r => r.json())
-  .then(d => { if (d.success) { closeConsultModal(); tg?.showAlert('✅ Заявка отправлена!'); e.target.reset(); } else throw new Error(d.error || 'Ошибка'); })
-  .catch(err => tg?.showAlert('⚠️ ' + err.message))
-  .finally(() => { btn.textContent = orig; btn.disabled = false; });
+    body: JSON.stringify({
+      secret: SECRET_KEY,           // ← Проверка на бэкенде
+      projectId: PROJECT_ID,        // ← 'novozhilov' для маршрутизации
+      title: item.name,
+      price: typeof item.price_from === 'number' ? item.price_from : '',
+      city: item.district || '',
+      leadName: name,
+      leadPhone: phone,
+      leadTelegram: 'Не указан'
+    })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      closeConsultModal();
+      tg?.showAlert('✅ Заявка отправлена!');
+      e.target.reset();
+    } else {
+      throw new Error(d.error || 'Ошибка отправки');
+    }
+  })
+  .catch(err => {
+    console.error('Send error:', err);
+    tg?.showAlert('⚠️ ' + err.message);
+  })
+  .finally(() => {
+    btn.textContent = orig;
+    btn.disabled = false;
+  });
 }
 
+// === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
 function escapeHtml(text) {
   if (!text) return '';
-  const d = document.createElement('div');
-  d.textContent = text;
+  const d = document.createElement('div');  d.textContent = text;
   return d.innerHTML;
 }
 
