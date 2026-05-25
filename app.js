@@ -44,7 +44,7 @@ function hideBack() {
   if (btn) btn.classList.add('hidden');
 }
 
-// ИСПРАВЛЕНИЕ: Функция appBack проверяет все состояния (карта, модалки)
+// УМНАЯ КНОПКА НАЗАД: закрывает модалки, карту или закрывает приложение
 function appBack() {
   const consult = document.getElementById('consultModal');
   const details = document.getElementById('detailsModal');  const mapCont = document.getElementById('mapContainer');
@@ -58,7 +58,7 @@ function appBack() {
     return;
   }
   if (mapCont && !mapCont.classList.contains('hidden')) {
-    switchView('list'); // Если открыта карта, переключаем на список
+    switchView('list'); // Возврат с карты на список
     return;
   }
   if (tg && tg.close) {
@@ -539,17 +539,14 @@ function submitConsultForm(e) {
   const orig = btn.textContent;
   btn.textContent = 'Отправка...';  btn.disabled = true;
  
-  // === ИСПРАВЛЕНИЕ ДЛЯ БОТА ===
+  // ОТПРАВЛЯЕМ ЗАЯВКУ БЕЗ ЦЕНЫ И ГОРОДА, ЧТОБЫ НЕ БЫЛО ОШИБОК
   fetch(GOOGLE_SCRIPT_URL, {
     method: 'POST',
     body: JSON.stringify({
       secret: SECRET_KEY,
       projectId: PROJECT_ID,
       title: item.name,
-      // Отправляем ЧИСЛО, чтобы скрипт сам добавил "млн ₽" один раз
-      price: typeof item.price_from === 'number' ? item.price_from : '',
-      // Отправляем пустую строку, чтобы не было "undefined"
-      city: '',
+      // price и city удалены, чтобы не было мусора в сообщении
       leadName: name,
       leadPhone: phone,
       leadTelegram: telegram || 'Не указан'
@@ -586,4 +583,5 @@ function escapeHtml(text) {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
-  init();}
+  init();
+}
