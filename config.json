@@ -1,24 +1,21 @@
 {
   "brand": {
-    "name": "АН \"НОВОЖИЛ\"",
-    "logo": "logo.svg",
-    "primaryColor": "#66BB6A",
-    "accentColor": "#66BB6A",
-    "welcomeTitle": "Агентство недвижимости \"НОВОЖИЛ\""
-  },
-  "texts": {
-    "welcomeSubtitle": "Подберём квартиру под ваш бюджет",
-    "ctaButton": "Начать подбор",
-    "emptyState": "Нет объектов"
-  },
-  "features": {
-    "showWelcomeScreen": true
+    "primaryColor": "#1a365d",
+    "accentColor": "#d4af37",
+    "welcomeTitle": "Агентство недвижимости Новожилов",
+    "welcomeSubtitle": "Каталог объектов",
+    "welcomeImage": "welcome-bg.jpg",
+    "logo": "logo.svg"
   },
   "data": {
-    "sheetUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSs0IIptZEaBOyYYnhWKvcpjfhGbcvoASS2qJHEg_B5_ZsxM7cPmuq2XoywHqToe3MLM722DWhfT2wB/pub?output=csv"
+    "sheetUrl": "https://docs.google.com/spreadsheets/d/1RB6hp-9RbQ0hwXZHR79bihxXRT4l7QHZ9ZJWedDpcLA/pubhtml"
   },
   "contact": {
-    "botToken": "8782604353:AAETp9ZD6b9q2Ztj-CHZBlUTlFvQxZVI3HI",
-    "chatId": "2038206387"
+    "botLink": "https://t.me/demo_novozhilov_bot"
+  },
+  "features": {
+    "showWelcomeScreen": true,
+    "showMap": true,
+    "showFilters": false
   }
 }
