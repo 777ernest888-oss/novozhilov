@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#1a365d">
   <title>Новожилов</title>
 
-  <!-- ЗАГУШКА TELEGRAM WEBAPP (чтобы не висело) -->
+  <!-- Заглушка Telegram WebApp (чтобы не висело) -->
   <script>
     window.Telegram = window.Telegram || {};
     window.Telegram.WebApp = window.Telegram.WebApp || {
@@ -20,8 +20,6 @@
       close: function() { window.close(); }
     };
   </script>
- 
-  <!-- Пытаемся загрузить настоящий SDK (если получится) -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
  
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous"/>
@@ -47,9 +45,9 @@
     </div>
   </div>
 
-  <!-- 📋 ОСНОВНОЙ КОНТЕНТ -->  <div id="mainContent" class="screen main hidden">
-    <button id="customBackBtn" class="header-back-btn hidden" onclick="appBack()" type="button">
-      <span class="back-arrow">←</span> Назад
+  <!-- 📋 ОСНОВНОЙ КОНТЕНТ -->
+  <div id="mainContent" class="screen main hidden">
+    <button id="customBackBtn" class="header-back-btn hidden" onclick="appBack()" type="button">      <span class="back-arrow">←</span> Назад
     </button>
 
     <div class="view-toggle">
@@ -96,9 +94,9 @@
   <!-- 📞 МОДАЛЬНОЕ ОКНО ЗАЯВКИ -->
   <div id="consultModal" class="modal hidden">
     <div class="modal-content">
-      <button class="close-btn" onclick="closeConsultModal()" type="button">✕</button>      <h2>Заказать консультацию</h2>
-      <p class="form-hint">Оставьте контакты — мы перезвоним</p>
-      <div id="consultObjectName" class="form-object">🏢 Объект</div>
+      <button class="close-btn" onclick="closeConsultModal()" type="button">✕</button>
+      <h2>Заказать консультацию</h2>
+      <p class="form-hint">Оставьте контакты — мы перезвоним</p>      <div id="consultObjectName" class="form-object">🏢 Объект</div>
     
       <form id="consultForm" onsubmit="submitConsultForm(event)" class="form-modal">
         <input type="text" id="consultName" placeholder="Ваше имя" required>
@@ -110,6 +108,6 @@
 
   <!-- Leaflet + Наш скрипт -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=1"></script>
 </body>
 </html>
