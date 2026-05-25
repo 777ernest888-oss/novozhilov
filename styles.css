@@ -60,7 +60,7 @@ body {
 }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
 
-/* === ПРИВЕТСТВИЕ (ИСПРАВЛЕНО) === */
+/* === ПРИВЕТСТВИЕ === */
 .welcome {
   display: flex;
   flex-direction: column;
@@ -70,8 +70,6 @@ body {
   padding: 20px;
   background: var(--bg);
 }
-
-/* 1. Верх: Лого + Название */
 .welcome-header {
   width: 100%;
   display: flex;
@@ -91,25 +89,21 @@ body {
   line-height: 1.2;
   text-align: center;
 }
-
-/* 2. Середина: Фото (чтобы не обрезалось) */
 .welcome-media {
   width: 100%;
   max-width: 350px;
-  margin-bottom: 24px;  border-radius: 16px;
+  margin-bottom: 24px;
+  border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-.welcome-img {
+}.welcome-img {
   width: 100%;
   height: auto;
-  max-height: 50vh; /* Увеличил высоту */
-  object-fit: contain; /* ПОКАЗЫВАЕТ ФОТО ПОЛНОСТЬЮ, не обрезает */
+  max-height: 50vh;
+  object-fit: contain;
   display: block;
-  background: #fff; /* Фон, если фото не квадратное */
+  background: #fff;
 }
-
-/* 3. Низ: Текст и Кнопка */
 .welcome-bottom {
   text-align: center;
   width: 100%;
@@ -145,7 +139,30 @@ body {
   padding: 8px 14px; border-radius: 20px; font-size: 14px; font-weight: 600;
   cursor: pointer; display: flex; align-items: center; gap: 4px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}.header-back-btn.hidden { display: none !important; }
+}
+.header-back-btn.hidden { display: none !important; }
+
+/* === ФИЛЬТРЫ === */
+.filters-toggle { padding: 12px 16px; background: var(--card-bg); border-bottom: 1px solid var(--border); }
+.filters-toggle-btn { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 8px 14px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 14px; }
+.filters-block { background: var(--card-bg); padding: 14px 16px; border-bottom: 1px solid var(--border); max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }.filters-block:not(.hidden) { max-height: 600px; }
+.filter-group { margin-bottom: 14px; }
+.filter-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+
+.price-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.price-btn { flex: 1; min-width: 60px; padding: 8px; border: 1px solid var(--border); background: var(--card-bg); border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+.price-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.checkbox-label {
+  display: inline-flex; align-items: center;
+  background: #f0f4f8; padding: 8px 12px; border-radius: 8px;
+  font-size: 14px; cursor: pointer; user-select: none;
+  transition: all 0.2s ease; border: 2px solid transparent;
+}
+.checkbox-label:hover { background: #e2e8f0; }
+.checkbox-label input[type="checkbox"] { margin-right: 6px; width: 16px; height: 16px; accent-color: var(--primary); }
+.checkbox-label:has(input:checked) { background: var(--primary); color: white; border-color: var(--primary); }
 
 /* === ПЕРЕКЛЮЧАТЕЛЬ ВИДА === */
 .view-toggle { display: flex; gap: 8px; margin: 16px 16px 0; }
@@ -173,13 +190,11 @@ body {
 .status-Частично-сдан { background: #fefcbf; color: #744210; }
 .consult-btn-inline { margin-top: 16px; width: 100%; padding: 14px; font-size: 15px; }
 
-/* Анимация */
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 .listing-card:nth-child(1){animation-delay:0.05s}
 .listing-card:nth-child(2){animation-delay:0.1s}
 .listing-card:nth-child(3){animation-delay:0.15s}
-.listing-card:nth-child(4){animation-delay:0.2s}
-.listing-card:nth-child(5){animation-delay:0.25s}
+.listing-card:nth-child(4){animation-delay:0.2s}.listing-card:nth-child(5){animation-delay:0.25s}
 
 /* === КАРТА === */
 .map-container { height: calc(100vh - 140px); border-radius: 12px; overflow: hidden; margin-top: 16px; }
@@ -194,7 +209,9 @@ body {
 .modal-content {
   background: white; min-height: 100%; padding: 20px; position: relative;
   transform: scale(0.95) translateY(10px); transition: transform 0.3s ease;
-}.modal:not(.hidden) .modal-content { transform: scale(1) translateY(0); }
+  padding-top: 60px; /* Отступ для кнопки Назад */
+}
+.modal:not(.hidden) .modal-content { transform: scale(1) translateY(0); }
 
 .close-btn {
   position: fixed; top: 15px; right: 15px; z-index: 1100;
@@ -226,8 +243,7 @@ body {
 .modal-cta { margin-top: 24px; padding: 18px; font-size: 17px; }
 
 /* 🏗 ПЛАНИРОВКИ */
-.floor-plans-text { font-size: 15px; margin-bottom: 16px; padding: 12px; background: white; border-radius: 8px; border: 1px solid var(--border); }
-.floor-plans-gallery {
+.floor-plans-text { font-size: 15px; margin-bottom: 16px; padding: 12px; background: white; border-radius: 8px; border: 1px solid var(--border); }.floor-plans-gallery {
   display: flex; flex-direction: row; overflow-x: auto; gap: 12px; padding: 10px 0;
   scrollbar-width: none;
 }
@@ -243,6 +259,7 @@ body {
 .form-modal input:focus { outline: none; border-color: var(--primary); }
 
 .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+
 @media (max-width: 360px) {
   .welcome-company { font-size: 16px; }
   .welcome-subtitle { font-size: 20px; }
