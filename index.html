@@ -22,7 +22,7 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
  
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous"/>
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=10">
 </head>
 <body>
 
@@ -47,7 +47,8 @@
   </div>
 
   <div id="mainContent" class="screen main hidden">
-    <button id="customBackBtn" class="header-back-btn hidden" type="button">      <span class="back-arrow">←</span> Назад
+    <!-- КНОПКА НАЗАД: Z-INDEX 9999, ONCLICK CLOSEMODAL -->    <button id="customBackBtn" class="header-back-btn hidden" onclick="closeModal()" type="button" style="z-index: 9999; pointer-events: auto;">
+      <span class="back-arrow">←</span> Назад
     </button>
 
     <div class="filters-toggle">
@@ -63,7 +64,7 @@
         <div id="districtCheckboxes" class="checkbox-group"></div>
       </div>
       <div class="filter-group">
-        <label>🚇 Метро</label>
+        <label> Метро</label>
         <div id="metroCheckboxes" class="checkbox-group"></div>
       </div>
       <div class="filter-group">
@@ -95,8 +96,8 @@
 
       <div class="modal-section">
         <h3>✨ Преимущества</h3>
-        <div id="modalFeatures"></div>
-      </div>
+        <div id="modalFeatures"></div>      </div>
+
       <div class="modal-section">
         <h3>📐 Планировки</h3>
         <div id="modalFloorPlans"></div>
@@ -122,6 +123,6 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>
