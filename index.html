@@ -7,19 +7,23 @@
   <meta name="theme-color" content="#1a365d">
   <title>Новожилов</title>
 
+  <!-- ЗАГУШКА TELEGRAM WEBAPP (чтобы не висело) -->
   <script>
-  // Пытаемся загрузить Telegram SDK, но если не выйдет — создаём заглушку
-  window.Telegram = window.Telegram || {};
-  window.Telegram.WebApp = window.Telegram.WebApp || {
-    ready: function() {},
-    expand: function() {},
-    MainButton: { setText: function() {}, show: function() {}, onClick: function() {}, hide: function() {} },
-    showAlert: function(msg) { alert(msg); },
-    initDataUnsafe: { user: {} },
-    close: function() { window.close(); }
-  };
-</script>
-<script src="https://telegram.org/js/telegram-web-app.js" onerror="console.log('Telegram SDK not loaded, using fallback')"></script>
+    window.Telegram = window.Telegram || {};
+    window.Telegram.WebApp = window.Telegram.WebApp || {
+      ready: function() {},
+      expand: function() {},
+      MainButton: { setText: function() {}, show: function() {}, onClick: function() {}, hide: function() {} },
+      showAlert: function(msg) { alert(msg); },
+      openLink: function(url) { window.open(url, '_blank'); },
+      initDataUnsafe: { user: {} },
+      close: function() { window.close(); }
+    };
+  </script>
+ 
+  <!-- Пытаемся загрузить настоящий SDK (если получится) -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+ 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous"/>
   <link rel="stylesheet" href="styles.css?v=1">
 </head>
@@ -34,19 +38,16 @@
   <!-- 🏠 ПРИВЕТСТВИЕ -->
   <div id="welcomeScreen" class="screen welcome hidden">
     <div class="welcome-media">
-      <!-- ИСПРАВЛЕНО: правильные имена файлов -->
       <img id="welcomeImage" class="welcome-img hidden" src="welcome-bg.jpg?v=1" alt="Welcome">
     </div>
     <div class="welcome-bottom">
-      <!-- ИСПРАВЛЕНО: правильный текст -->
       <h1 id="welcomeTitle">Агентство недвижимости Новожилов</h1>
       <p id="welcomeSubtitle">Каталог объектов</p>
       <button class="tg-btn" onclick="startApp()" type="button">Начать подбор</button>
     </div>
   </div>
 
-  <!--  ОСНОВНОЙ КОНТЕНТ (без изменений, как в идеальном файле) -->
-  <div id="mainContent" class="screen main hidden">
+  <!-- 📋 ОСНОВНОЙ КОНТЕНТ -->  <div id="mainContent" class="screen main hidden">
     <button id="customBackBtn" class="header-back-btn hidden" onclick="appBack()" type="button">
       <span class="back-arrow">←</span> Назад
     </button>
@@ -59,7 +60,8 @@
     <div id="listingsContainer" class="listings"></div>
     <div id="mapContainer" class="map-container hidden"></div>
   </div>
-  <!--  МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ (со слайдерами) -->
+
+  <!-- 🏢 МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ -->
   <div id="detailsModal" class="modal hidden">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal()" type="button">✕</button>
@@ -94,8 +96,7 @@
   <!-- 📞 МОДАЛЬНОЕ ОКНО ЗАЯВКИ -->
   <div id="consultModal" class="modal hidden">
     <div class="modal-content">
-      <button class="close-btn" onclick="closeConsultModal()" type="button">✕</button>
-      <h2>Заказать консультацию</h2>
+      <button class="close-btn" onclick="closeConsultModal()" type="button">✕</button>      <h2>Заказать консультацию</h2>
       <p class="form-hint">Оставьте контакты — мы перезвоним</p>
       <div id="consultObjectName" class="form-object">🏢 Объект</div>
     
@@ -108,6 +109,7 @@
   </div>
 
   <!-- Leaflet + Наш скрипт -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>  <script src="app.js?v=1"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+  <script src="app.js?v=1"></script>
 </body>
 </html>
