@@ -1,7 +1,7 @@
 console.log(" Проект Новожилов запущен!");
 
 // 🔗 ДАННЫЕ ПРОЕКТА (ВСТАВЬ СЮДА ID СВОЕЙ ТАБЛИЦЫ НОВОЖИЛОВА)
-const SHEET_ID = 'ВСТАВЬ_СЮДА_ID_ТАБЛИЦЫ_НОВОЖИЛОВА';
+const SHEET_ID = '1RB6hp-9RbQ0hwXZHR79bihxXRT4l7QHZ9ZJWedDpcLA';
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
 
 // 🔐 НАСТРОЙКИ БЕЗОПАСНОСТИ
