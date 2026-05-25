@@ -7,7 +7,6 @@
   <meta name="theme-color" content="#1a365d">
   <title>Новожилов</title>
 
-  <!-- Заглушка Telegram WebApp -->
   <script>
     window.Telegram = window.Telegram || {};
     window.Telegram.WebApp = window.Telegram.WebApp || {
@@ -22,19 +21,16 @@
   </script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
  
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous"/>
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
 
-  <!-- 🔄 ЭКРАН ЗАГРУЗКИ -->
   <div id="loadingScreen" class="loading-screen hidden">
     <div class="loading-spinner"></div>
     <div class="loading-text">Загружаем объекты...</div>
   </div>
 
-  <!-- 🏠 ПРИВЕТСТВИЕ -->
   <div id="welcomeScreen" class="screen welcome hidden">
     <div class="welcome-header">
       <img src="logo.svg" class="welcome-logo" alt="Лого">
@@ -47,17 +43,15 @@
       <h2 class="welcome-subtitle">Каталог новостроек</h2>
       <p class="welcome-motto">Квартиры вашей мечты</p>
       <button class="tg-btn" id="startBtn" type="button">Начать подбор</button>
-    </div>  </div>
+    </div>
+  </div>
 
-  <!-- 📋 ОСНОВНОЙ КОНТЕНТ -->
   <div id="mainContent" class="screen main hidden">
-    <button id="customBackBtn" class="header-back-btn hidden" type="button">
-      <span class="back-arrow">←</span> Назад
+    <button id="customBackBtn" class="header-back-btn hidden" type="button">      <span class="back-arrow">←</span> Назад
     </button>
 
-    <!-- ФИЛЬТРЫ -->
     <div class="filters-toggle">
-      <button class="filters-toggle-btn" onclick="toggleFilters()" type="button">🔽 Фильтры</button>
+      <button class="filters-toggle-btn" onclick="toggleFilters()" type="button"> Фильтры</button>
     </div>
     <div id="filtersBlock" class="filters-block hidden">
       <div class="filter-group">
@@ -73,30 +67,28 @@
         <div id="metroCheckboxes" class="checkbox-group"></div>
       </div>
       <div class="filter-group">
-        <label> Комнаты</label>
+        <label>🚪 Комнаты</label>
         <div id="roomsCheckboxes" class="checkbox-group"></div>
       </div>
     </div>
 
-    <!-- ПЕРЕКЛЮЧАТЕЛЬ ВИДА -->
     <div class="view-toggle">
-      <button id="listViewBtn" class="view-btn active" onclick="switchView('list')" type="button"> Список</button>
+      <button id="listViewBtn" class="view-btn active" onclick="switchView('list')" type="button">📋 Список</button>
       <button id="mapViewBtn" class="view-btn" onclick="switchView('map')" type="button">🗺️ Карта</button>
     </div>
 
-    <!-- КОНТЕЙНЕРЫ -->
     <div id="listingsContainer" class="listings"></div>
     <div id="mapContainer" class="map-container hidden"></div>
   </div>
 
-  <!-- 🏢 МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ (КРЕСТИК УБРАН) -->
   <div id="detailsModal" class="modal hidden">
     <div class="modal-content">
       <h2 id="modalTitle"></h2>
       <div id="modalGallery" class="modal-gallery"></div>
       <div id="modalPrice" class="modal-price"></div>
       <div id="modalMeta" class="modal-meta"></div>
-           <div class="modal-section">
+    
+      <div class="modal-section">
         <h3>📖 Описание</h3>
         <div id="modalDescription"></div>
       </div>
@@ -105,7 +97,6 @@
         <h3>✨ Преимущества</h3>
         <div id="modalFeatures"></div>
       </div>
-
       <div class="modal-section">
         <h3>📐 Планировки</h3>
         <div id="modalFloorPlans"></div>
@@ -115,12 +106,11 @@
     </div>
   </div>
 
-  <!-- 📞 МОДАЛЬНОЕ ОКНО ЗАЯВКИ (КРЕСТИК УБРАН) -->
   <div id="consultModal" class="modal hidden">
     <div class="modal-content">
       <h2>Заказать консультацию</h2>
       <p class="form-hint">Оставьте контакты — мы перезвоним</p>
-      <div id="consultObjectName" class="form-object">🏢 Объект</div>
+      <div id="consultObjectName" class="form-object"> Объект</div>
     
       <form id="consultForm" onsubmit="submitConsultForm(event)" class="form-modal">
         <input type="text" id="consultName" placeholder="Ваше имя" required>
@@ -131,8 +121,7 @@
     </div>
   </div>
 
-  <!-- Leaflet JS + Наш скрипт -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
