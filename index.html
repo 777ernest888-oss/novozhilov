@@ -7,7 +7,19 @@
   <meta name="theme-color" content="#1a365d">
   <title>Новожилов</title>
 
-  <script src="https://telegram.org/js/telegram-web-app.js" async></script>
+  <script>
+  // Пытаемся загрузить Telegram SDK, но если не выйдет — создаём заглушку
+  window.Telegram = window.Telegram || {};
+  window.Telegram.WebApp = window.Telegram.WebApp || {
+    ready: function() {},
+    expand: function() {},
+    MainButton: { setText: function() {}, show: function() {}, onClick: function() {}, hide: function() {} },
+    showAlert: function(msg) { alert(msg); },
+    initDataUnsafe: { user: {} },
+    close: function() { window.close(); }
+  };
+</script>
+<script src="https://telegram.org/js/telegram-web-app.js" onerror="console.log('Telegram SDK not loaded, using fallback')"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous"/>
   <link rel="stylesheet" href="styles.css?v=1">
 </head>
